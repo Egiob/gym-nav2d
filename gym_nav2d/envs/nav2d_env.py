@@ -7,7 +7,7 @@ import math
 
 class Nav2dEnv(gym.Env):
     # this is a list of supported rendering modes!
-    metadata = {'render.modes': ['human', 'ansi'],
+    metadata = {'render.modes': ['human', 'ansi', 'rgb_array'],
                 'video.frames_per_second': 30}
 
     def __init__(self):
@@ -62,10 +62,10 @@ class Nav2dEnv(gym.Env):
     #  extra rewarding reaching the goal and learning to do this by few steps as possible
     def _reward_goal_reached(self):
         # 1000 - (distance)/10 - (sum of actions)
-        return 1000
+        return 100
 
     def _step_reward(self):
-        return - self._distance()/10 - 1
+        return -0.1
 
     def _observation(self):
         return np.array([self.agent_x, self.agent_y, self.goal_x, self.goal_y, self._distance()])
@@ -117,11 +117,11 @@ class Nav2dEnv(gym.Env):
         self.positions.append([self.agent_x, self.agent_y])
 
         normalized_obs = self._normalize_observation(obs)
-
-        info = "Debug:" + "actions performed:" + str(self.count_actions) + ", act:" + str(action[0]) + "," + str(action[1]) + ", dist:" + str(normalized_obs[4]) + ", rew:" + str(
-            rew) + ", agent pos: (" + str(self.agent_x) + "," + str(self.agent_y) + ")", "goal pos: (" + str(
-            self.goal_x) + "," + str(self.goal_y) + "), done: " + str(done)
-
+        
+        #info = "Debug:" + "actions performed:" + str(self.count_actions) + ", act:" + str(action[0]) + "," + str(action[1]) + ", dist:" + str(normalized_obs[4]) + ", rew:" + str(
+        #    rew) + ", agent pos: (" + str(self.agent_x) + "," + str(self.agent_y) + ")", "goal pos: (" + str(
+        #    self.goal_x) + "," + str(self.goal_y) + "), done: " + str(done)
+        info = {}
         return normalized_obs, rew, done, info
 
     def reset(self):
@@ -130,12 +130,12 @@ class Nav2dEnv(gym.Env):
         # set initial state randomly
         # self.agent_x = self.np_random.uniform(low=0, high=self.len_court_x)
         # self.agent_y = self.np_random.uniform(low=0, high=self.len_court_y)
-        self.agent_x = 10
+        self.agent_x = 240
         self.agent_y = 240
-        # self.goal_x = self.np_random.uniform(low=0, high=self.len_court_x)
-        # self.goal_y = self.np_random.uniform(low=0, high=self.len_court_x)
-        self.goal_x = 125
-        self.goal_y = 125
+        self.goal_x = self.np_random.uniform(low=0, high=self.len_court_x)
+        self.goal_y = self.np_random.uniform(low=0, high=self.len_court_x)
+        #self.goal_x = 125
+        #self.goal_y = 125
         if self.goal_y == self.agent_y or self.goal_x == self.agent_x:
             self.reset()
         self.positions.append([self.agent_x, self.agent_y])
@@ -149,7 +149,7 @@ class Nav2dEnv(gym.Env):
     def render(self, mode='human'):
         if mode == 'ansi':
             return self._observation()
-        elif mode == 'human':
+        else:
             from gym.envs.classic_control import rendering
             if self.viewer is None:
                 self.viewer = rendering.Viewer(self.screen_width, self.screen_height)
@@ -174,10 +174,10 @@ class Nav2dEnv(gym.Env):
             self.agent_trans.set_translation(self.agent_x * self.scale, self.agent_y * self.scale)
 
             return self.viewer.render(return_rgb_array=mode == 'rgb_array')
-        elif mode == "rgb_array":
-            super(Nav2dEnv, self).render(mode=mode)
-        else:
-            super(Nav2dEnv, self).render(mode=mode)
+        #elif mode == "rgb_array":
+        #    super(Nav2dEnv, self).render(mode=mode)
+        #else:
+        #    super(Nav2dEnv, self).render(mode=mode)
 
     def close(self):
         if self.viewer:
