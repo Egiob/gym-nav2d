@@ -2,7 +2,6 @@ import gym
 from gym import error, spaces, utils
 from gym.utils import seeding
 import numpy as np
-import math
 
 
 class Nav2dEnv(gym.Env):
@@ -56,7 +55,7 @@ class Nav2dEnv(gym.Env):
         self.reset()
 
     def _distance(self):
-        return math.sqrt(pow((self.goal_x - self.agent_x), 2) + pow(self.goal_y - self.agent_y, 2))
+        return np.sqrt((self.goal_x - self.agent_x)**2 + (self.goal_y - self.agent_y)**2)
 
     # todo: think about a good reward fct that lets the agents learn to go to the goal by
     #  extra rewarding reaching the goal and learning to do this by few steps as possible
@@ -71,30 +70,23 @@ class Nav2dEnv(gym.Env):
         return np.array([self.agent_x, self.agent_y, self.goal_x, self.goal_y, self._distance()])
 
     def _normalize_observation(self, obs):
-        normalized_obs = []
-        for i in range(0, 4):
-            normalized_obs.append(obs[i]/255*2-1)
-        normalized_obs.append(obs[-1]/360.62)
-        return np.array(normalized_obs)
+        normalized_obs = obs.copy()
+        normalized_obs[:4] /= 255*2-1
+        normalized_obs[-1] /= 360.62
+        return normalized_obs
 
     def _calculate_position(self, action):
-        angle = (action[0] + 1) * math.pi + math.pi / 2
-        if angle > 2 * math.pi:
-            angle -= 2 * math.pi
+        angle = (action[0] + 1) * np.pi + np.pi / 2
+        if angle > 2 * np.pi:
+            angle -= 2 * np.pi
         step_size = (action[1] + 1) / 2 * self.max_step_size
         # calculate new agent state
-        self.agent_x = self.agent_x + math.cos(angle) * step_size
-        self.agent_y = self.agent_y + math.sin(angle) * step_size
+        self.agent_x = self.agent_x + np.cos(angle) * step_size
+        self.agent_y = self.agent_y + np.sin(angle) * step_size
 
         # borders
-        if self.agent_x < 0:
-            self.agent_x = 0
-        if self.agent_x > self.len_court_x:
-            self.agent_x = self.len_court_x
-        if self.agent_y < 0:
-            self.agent_y = 0
-        if self.agent_y > self.len_court_y:
-            self.agent_y = self.len_court_y
+        self.agent_x = self.agent_x.clip(0, self.len_court_x)
+        self.agent_y = self.agent_y.clip(0, self.len_court_y)
 
     def step(self, action):
         self.count_actions += 1
@@ -146,14 +138,14 @@ class Nav2dEnv(gym.Env):
         obs = self._observation()
         return self._normalize_observation(obs)
 
-    def render(self, mode='human'):
+    def render(self, mode='ansi'):
         if mode == 'ansi':
             return self._observation()
         else:
             from gym.envs.classic_control import rendering
             if self.viewer is None:
                 self.viewer = rendering.Viewer(self.screen_width, self.screen_height)
-
+            print('Rendering')
             #track the way, the agent has gone
             self.track_way = rendering.make_polyline(np.dot(self.positions, self.scale))
             self.track_way.set_linewidth(4)
