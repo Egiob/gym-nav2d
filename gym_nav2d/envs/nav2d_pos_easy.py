@@ -6,6 +6,9 @@ import math
 
 
 class Nav2dPosEasy(gym.Env):
+    """
+    Same as Nav2dEasy but we only observe position.
+    """
     # this is a list of supported rendering modes!
     metadata = {'render.modes': ['human', 'ansi', 'rgb_array'],
                 'video.frames_per_second': 30}
