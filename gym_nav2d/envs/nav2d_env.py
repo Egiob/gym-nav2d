@@ -63,16 +63,17 @@ class Nav2dEnv(gym.Env):
         # 1000 - (distance)/10 - (sum of actions)
         return 100
 
-    def _step_reward(self):
-        return -0.1
+    def _step_reward(self, distance):
+        return -distance
 
     def _observation(self):
         return np.array([self.agent_x, self.agent_y, self.goal_x, self.goal_y, self._distance()])
 
     def _normalize_observation(self, obs):
         normalized_obs = obs.copy()
-        normalized_obs[:4] /= 255*2-1
-        normalized_obs[-1] /= 360.62
+        normalized_obs[:4] = normalized_obs[:4]/255*2 -1
+        
+        normalized_obs[-1] = normalized_obs[-1]/360.62
         return normalized_obs
 
     def _calculate_position(self, action):
@@ -93,12 +94,12 @@ class Nav2dEnv(gym.Env):
         self._calculate_position(action)
         # calulate new observation
         obs = self._observation()
-
+        normalized_obs = self._normalize_observation(obs)
         # done for rewarding
         done = bool(obs[4] <= self.eps)
         rew = 0
         if not done:
-            rew += self._step_reward()
+            rew += self._step_reward(distance=normalized_obs[-1])
         else:
             rew += self._reward_goal_reached()
 
@@ -108,7 +109,7 @@ class Nav2dEnv(gym.Env):
         # track, where agent was
         self.positions.append([self.agent_x, self.agent_y])
 
-        normalized_obs = self._normalize_observation(obs)
+
         
         #info = "Debug:" + "actions performed:" + str(self.count_actions) + ", act:" + str(action[0]) + "," + str(action[1]) + ", dist:" + str(normalized_obs[4]) + ", rew:" + str(
         #    rew) + ", agent pos: (" + str(self.agent_x) + "," + str(self.agent_y) + ")", "goal pos: (" + str(
