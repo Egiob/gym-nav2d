@@ -13,9 +13,10 @@ class Nav2dEasyStatic(Nav2dEnv):
                 'video.frames_per_second': 30}
 
     def __init__(self,goal_x=240,goal_y=240):
-        Nav2dEnv.__init__(self)
         self.goal_x_init=goal_x
         self.goal_y_init=goal_y
+
+        Nav2dEnv.__init__(self)
 
     def reset(self):
         # Changing start point and fixed goal point
