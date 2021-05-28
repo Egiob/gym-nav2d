@@ -30,5 +30,11 @@ register(
     entry_point='gym_nav2d.envs:Nav2dEasyStatic',
 )
 
+register(
+    id='nav2dEasy-v1',
+    entry_point='gym_nav2d.envs:Nav2dEasyEnv2',
+)
+
+
 
 

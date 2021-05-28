@@ -5,3 +5,5 @@ from gym_nav2d.envs.nav2d_hard import Nav2dHardEnv
 from gym_nav2d.envs.nav2d_very_hard import Nav2dVeryHardEnv
 from gym_nav2d.envs.nav2d_pos_easy import Nav2dPosEasy
 from gym_nav2d.envs.nav2d_easy_static import Nav2dEasyStatic
+from gym_nav2d.envs.nav2d_env_2 import Nav2dEnv2
+from gym_nav2d.envs.nav2d_easy_2 import Nav2dEasyEnv2
